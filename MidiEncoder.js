@@ -9,15 +9,16 @@ containerAdd.addTrigger("AddEncoder", "Add Encoder");
 
 function addEncoderChannel(channel, number) 
 {
-	var valueContainer = containerEncoder.addContainer("ch" + channel + "_CC" + number);
+	var valueContainer = containerEncoder.addContainer("[" + channel + "] " + "CC" + number);
 	
+	valueContainer.setName("[" + channel + "] " + "CC" + number, "" + channel + "_" + number);
 	valueContainer.addTrigger("Up", "triggers when turning up");//.setAttribute("readonly", true);
 	valueContainer.addTrigger("Down", "triggers when turning down");//.setAttribute("readonly", true);
 	valueContainer.addFloatParameter("Value", "the virtual value of the encoder", 0.5, 0, 1);
 	valueContainer.addFloatParameter("Multiplicator", "the increment or decrement value", 0.5, 0, 1);
 	valueContainer.addBoolParameter("Feedback", "send Feedback to midi controller?", false);
 
-	activeEncoder["ch" + channel + "_CC" + number] = valueContainer;
+	activeEncoder["" + channel + "_" + number] = valueContainer;
 }
 
 function resetEncoders()
@@ -31,7 +32,7 @@ function resetEncoders()
 
 function ccEvent(channel, number, value)
 {
-	var eventContainer = activeEncoder["ch" + channel + "_CC" + number];
+	var eventContainer = activeEncoder["" + channel + "_" + number];
 
 	if(eventContainer !== undefined)
 	{
@@ -69,7 +70,8 @@ function moduleValueChanged(value)
 		{
 			if (valueContainer.getChild("Feedback").get())
 			{
-				local.sendCC(channel, number, value.get() * 127);
+				var midiData = value.getParent().name.split("_");
+				local.sendCC(midiData[0], midiData[1], value.get() * 127);
 			}
 		}
 	}
