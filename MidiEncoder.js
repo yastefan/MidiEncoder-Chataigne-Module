@@ -1,24 +1,22 @@
-var activeEncoder = {};
-var containerEncoder = local.values.addContainer("Encoder");
-var containerAdd = local.parameters.addContainer("Add Enocder");
-var parameterMidiChannel = containerAdd.addIntParameter("MidiChannel", "MidiChannel", 1, 1, 16);
-var parameterMidiNumber = containerAdd.addIntParameter("MidiNumber", "MidiNumber", 0, 0, 127);
-containerAdd.addTrigger("AddEncoder", "Add Encoder");
+function loadEncoderObject()
+{
+	var objectEncoder = {};
+	var namesEncoder = util.getObjectProperties(local.values.getChild("Encoder"), true, false);
+	for (var index = 0; index < namesEncoder.length; index++)
+	{
+		var midiData = namesEncoder[index].split("_");
+		script.log(midiData);
+		createEncoderContainer(midiData[0], midiData[1]);
+		objectEncoder[namesEncoder[index]] = local.values.getChild("Encoder").getChild(namesEncoder[index]);
+	}
+	return objectEncoder;
+}
 
 //Commands
 
 function addEncoderChannel(channel, number) 
 {
-	var valueContainer = containerEncoder.addContainer("[" + channel + "] " + "CC" + number);
-	
-	valueContainer.setName("[" + channel + "] " + "CC" + number, "" + channel + "_" + number);
-	valueContainer.addTrigger("Up", "triggers when turning up");//.setAttribute("readonly", true);
-	valueContainer.addTrigger("Down", "triggers when turning down");//.setAttribute("readonly", true);
-	valueContainer.addFloatParameter("Value", "the virtual value of the encoder", 0.5, 0, 1);
-	valueContainer.addFloatParameter("Multiplicator", "the increment or decrement value", 0.5, 0, 1);
-	valueContainer.addBoolParameter("Feedback", "send Feedback to midi controller?", false);
-
-	activeEncoder["" + channel + "_" + number] = valueContainer;
+	activeEncoder["" + channel + "_" + number] = createEncoderContainer(channel, number);
 }
 
 function resetEncoders()
@@ -56,8 +54,11 @@ function ccEvent(channel, number, value)
 function moduleParameterChanged(param) {
 	if(param.name == "addEncoder")
 	{
-		script.log("add new Encoder Channel: " + parameterMidiChannel.get() + " MidiNumber: " + parameterMidiNumber.get());
-		addEncoderChannel(parameterMidiChannel.get(), parameterMidiNumber.get());
+		var midiChannel = local.parameters.getChild("AddEncoder").getChild("MidiChannel").get();
+		var midiNumber = local.parameters.getChild("AddEncoder").getChild("MidiNumber").get();
+
+		script.log("add new Encoder Channel: " +  midiChannel + " MidiNumber: " + midiNumber);
+		addEncoderChannel(midiChannel, midiNumber);
 	}
 	
 }
@@ -75,4 +76,20 @@ function moduleValueChanged(value)
 			}
 		}
 	}
-} 
+}
+
+function createEncoderContainer(channel, number) 
+{
+	var valueContainer = local.values.getChild("Encoder").addContainer("" + channel + "_" + number);
+	
+	//valueContainer.setName("[" + channel + "] " + "CC" + number, "" + channel + "_" + number);
+	valueContainer.addTrigger("Up", "triggers when turning up");
+	valueContainer.addTrigger("Down", "triggers when turning down");
+	valueContainer.addFloatParameter("Value", "the virtual value of the encoder", 0.5, 0, 1);
+	valueContainer.addFloatParameter("Multiplicator", "the increment or decrement value", 0.5, 0, 1);
+	valueContainer.addBoolParameter("Feedback", "send Feedback to midi controller?", false);
+
+	return valueContainer;
+}
+
+var activeEncoder = loadEncoderObject();

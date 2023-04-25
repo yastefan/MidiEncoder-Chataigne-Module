@@ -3,7 +3,7 @@
 	"type":"MIDI",
 	"path":"Protocol",
 	
-	"version":"0.0.2",
+	"version":"0.0.3",
 	"description":"Special MIDI Module to control Midi Encoder Messages",
 	"url":"https://github.com/yastefan/MidiEncoder-Chataigne-Module",
 	"downloadURL":"https://github.com/yastefan/MidiEncoder-Chataigne-Module/archive/refs/heads/main.zip",
@@ -15,7 +15,13 @@
 
 	"parameters":
 	{
-
+		"AddEncoder": 
+		{
+			"type": "Container",
+			"MidiChannel": { "type": "Integer", "min": 1, "max": 16, "default": 1},
+			"MidiNumber": { "type": "Integer", "min": 0, "max": 127, "default": 0},
+			"AddEncoder": { "type": "Trigger"}
+		}
 	},
 
 	"defaults":
@@ -30,6 +36,7 @@
 
 	"values":
 	{
+		"Encoder": { "type": "Container"}
 	},
 
 	"commands":
