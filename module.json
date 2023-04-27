@@ -11,7 +11,7 @@
 	"hasInput":true,
 	"hasOutput":true, 
 
-	"hideDefaultCommands":true,
+	"hideDefaultCommands":false,
 
 	"parameters":
 	{
